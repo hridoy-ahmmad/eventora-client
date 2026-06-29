@@ -1,13 +1,25 @@
-
 'use client';
 
 import { useState } from "react";
 import { Link, Button } from "@heroui/react";
 import Image from "next/image";
+import { authClient } from "@/lib/auth-client";
 
 export default function Nav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const {
+    data: session,
+    isPending, //loading state
+    error, //error object
+    refetch //refetch the session
+  } = authClient.useSession()
 
+  const handleSighOut = async () => {
+    await authClient.signOut();
+  }
+
+
+  const user = session?.user
   const navItems = (
     <>
       <li>
@@ -65,23 +77,39 @@ export default function Nav() {
         <div className="flex items-center gap-3">
 
           {/* Desktop Buttons */}
-          <div className="hidden items-center gap-4 md:flex">
-            <Link
-              href="#"
-              className="text-sm font-medium text-zinc-300 transition hover:text-white"
-            >
-              Login
-            </Link>
+          {
+            user ? <div className=" flex">
+              <p>{user?.name}</p>
+              <Button
+                className="w-full rounded-lg bg-linear-to-r from-[#3B1DFF] via-[#6A1BFF] to-[#FF3DA8] py-3 font-semibold text-white transition-all duration-300 hover:shadow-lg  hover:scale-[1.02] hidden md:flex"
+              >
+                <Link onClick={handleSighOut} className={'hover:no-underline'}>
+                  Sign out
+                </Link>
+              </Button>
+            </div> : <div className="border-t border-white/10 backdrop-blur-2xl">
+              <ul className=" gap-6 px-6 py-6 hidden md:flex items-center">
+                <li>
+                  <Link
+                    href="#"
+                    className="text-sm font-medium text-zinc-300 transition hover:no-underline hover:text-white"
+                  >
+                    Login
+                  </Link>
+                </li>
 
-            <Button
-              className="w-full rounded-lg bg-linear-to-r from-[#3B1DFF] via-[#6A1BFF] to-[#FF3DA8] py-3 font-semibold text-white transition-all duration-300 hover:shadow-lg  hover:scale-[1.02]"
-            >
-              <Link className={'hover:no-underline'}>
-                Sign Up
-              </Link>
-
-            </Button>
-          </div>
+                <li>
+                  <Button
+                    className="w-full rounded-lg bg-linear-to-r from-[#3B1DFF] via-[#6A1BFF] to-[#FF3DA8] py-3 font-semibold text-white transition-all duration-300 hover:shadow-lg  hover:scale-[1.02]"
+                  >
+                    <Link className={'hover:no-underline'}>
+                      Sign Up
+                    </Link>
+                  </Button>
+                </li>
+              </ul>
+            </div>
+          }
 
           {/* Mobile Menu Button */}
           <button
@@ -128,33 +156,44 @@ export default function Nav() {
         className={`overflow-hidden transition-all duration-300 ease-in-out md:hidden ${isMenuOpen ? "max-h-96" : "max-h-0"
           }`}
       >
-        <div className="border-t border-white/10 bg-zinc-950/95 backdrop-blur-2xl">
-          <ul className="flex flex-col gap-6 px-6 py-6">
-
-            {navItems}
-
-            <li>
-              <Link
-                href="#"
-                className="text-sm font-medium text-zinc-300 transition hover:text-white"
-              >
-                Login
-              </Link>
-            </li>
-
-            <li>
-                 <Button
+        {
+          user ? <div className=" ">
+           {navItems}
+            <Button
               className="w-full rounded-lg bg-linear-to-r from-[#3B1DFF] via-[#6A1BFF] to-[#FF3DA8] py-3 font-semibold text-white transition-all duration-300 hover:shadow-lg  hover:scale-[1.02]"
             >
-              <Link className={'hover:no-underline'}>
-                Sign Up
+              <Link onClick={handleSighOut} className={'hover:no-underline'}>
+                Sign out
               </Link>
-
             </Button>
-            </li>
+          </div> : <div className="border-t border-white/10 bg-zinc-950/95 backdrop-blur-2xl">
+            <ul className="flex flex-col gap-6 px-6 py-6">
 
-          </ul>
-        </div>
+              {navItems}
+
+              <li>
+                <Link
+                  href="#"
+                  className="text-sm font-medium text-zinc-300 transition hover:text-white"
+                >
+                  Login
+                </Link>
+              </li>
+
+              <li>
+                <Button
+                  className="w-full rounded-lg bg-linear-to-r from-[#3B1DFF] via-[#6A1BFF] to-[#FF3DA8] py-3 font-semibold text-white transition-all duration-300 hover:shadow-lg  hover:scale-[1.02]"
+                >
+                  <Link className={'hover:no-underline'}>
+                    Sign Up
+                  </Link>
+
+                </Button>
+              </li>
+
+            </ul>
+          </div>
+        }
       </div>
     </nav>
   );
