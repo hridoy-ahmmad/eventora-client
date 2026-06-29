@@ -1,5 +1,6 @@
 "use client";
 
+import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -14,8 +15,15 @@ export default function RegisterForm() {
     reset
   } = useForm();
   const password = watch("password");
-  const onSubmit = (data) => {
-    console.log(data);
+
+  const onSubmit = async (data) => {
+    const { data: userData, error } = await authClient.signUp.email({
+      name: data?.fullName,
+      email: data?.email,
+      password: data?.password,
+    });
+    console.log(userData, error);
+
     reset()
   };
 
@@ -25,11 +33,9 @@ export default function RegisterForm() {
         <h2 className="mb-2 text-center text-3xl font-bold text-white">
           Create Account
         </h2>
-
         <p className="mb-8 text-center text-gray-400">
           Join Eventora and start managing events effortlessly.
         </p>
-
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-5 text-gray-300"
