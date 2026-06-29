@@ -1,12 +1,15 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
-
+  const router = useRouter()
   const {
     register,
     handleSubmit,
@@ -22,9 +25,15 @@ export default function RegisterForm() {
       email: data?.email,
       password: data?.password,
     });
-    console.log(userData, error);
-
     reset()
+
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/loginForm"); // redirect to login page
+        },
+      },
+    });
   };
 
   return (
@@ -202,12 +211,13 @@ export default function RegisterForm() {
 
         <p className="mt-6 text-center text-sm text-gray-400">
           Already have an account?{" "}
-          <button
+          <Link
+            href={'/loginForm'}
             type="button"
             className="font-semibold text-blue-500 transition hover:text-blue-400"
           >
             Login
-          </button>
+          </Link>
         </p>
       </div>
     </div>

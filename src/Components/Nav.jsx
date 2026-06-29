@@ -4,9 +4,12 @@ import { useState } from "react";
 import { Link, Button } from "@heroui/react";
 import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { CustomTrigger } from "./CustomTrigger";
 
 export default function Nav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter()
   const {
     data: session,
     isPending, //loading state
@@ -14,10 +17,17 @@ export default function Nav() {
     refetch //refetch the session
   } = authClient.useSession()
 
-  const handleSighOut = async () => {
-    await authClient.signOut();
-  }
 
+  const handleSighOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/loginForm"); // redirect to login page
+        },
+      },
+    });
+  }
+  console.log(session);
 
   const user = session?.user
   const navItems = (
@@ -79,19 +89,13 @@ export default function Nav() {
           {/* Desktop Buttons */}
           {
             user ? <div className=" flex">
-              <p>{user?.name}</p>
-              <Button
-                className="w-full rounded-lg bg-linear-to-r from-[#3B1DFF] via-[#6A1BFF] to-[#FF3DA8] py-3 font-semibold text-white transition-all duration-300 hover:shadow-lg  hover:scale-[1.02] hidden md:flex"
-              >
-                <Link onClick={handleSighOut} className={'hover:no-underline'}>
-                  Sign out
-                </Link>
-              </Button>
+              {/* <Image alt="name" height={40} width={40} src={user?.image}></Image> */}
+              <CustomTrigger />
             </div> : <div className="border-t border-white/10 backdrop-blur-2xl">
               <ul className=" gap-6 px-6 py-6 hidden md:flex items-center">
                 <li>
                   <Link
-                    href="#"
+                    href="/loginForm"
                     className="text-sm font-medium text-zinc-300 transition hover:no-underline hover:text-white"
                   >
                     Login
@@ -102,7 +106,9 @@ export default function Nav() {
                   <Button
                     className="w-full rounded-lg bg-linear-to-r from-[#3B1DFF] via-[#6A1BFF] to-[#FF3DA8] py-3 font-semibold text-white transition-all duration-300 hover:shadow-lg  hover:scale-[1.02]"
                   >
-                    <Link className={'hover:no-underline'}>
+                    <Link
+                      href="/RegisterForm"
+                      className={'hover:no-underline'}>
                       Sign Up
                     </Link>
                   </Button>
@@ -158,7 +164,7 @@ export default function Nav() {
       >
         {
           user ? <div className=" ">
-           {navItems}
+            {navItems}
             <Button
               className="w-full rounded-lg bg-linear-to-r from-[#3B1DFF] via-[#6A1BFF] to-[#FF3DA8] py-3 font-semibold text-white transition-all duration-300 hover:shadow-lg  hover:scale-[1.02]"
             >
@@ -173,7 +179,7 @@ export default function Nav() {
 
               <li>
                 <Link
-                  href="#"
+                  href="/loginForm"
                   className="text-sm font-medium text-zinc-300 transition hover:text-white"
                 >
                   Login
